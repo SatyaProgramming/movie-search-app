@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Movie Search App</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5em;
+            margin-top: 40px;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        input[type="text"] {
+            padding: 12px 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-right: 10px;
+            border: 2px solid #fff;
+            border-radius: 30px;
+            font-size: 1em;
+            outline: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Suggestions dropdown */
+        #suggestions {
+            position: absolute;
+            top: 45px;
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            z-index: 1000;
+        }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            border-radius: 30px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            transition: all 0.2s;
+        }
+        .results {
+            margin: 30px auto;
+            max-width: 1200px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 20px;
+        }
+        .results h2 {
+            color: #fff;
+            text-align: center;
+            font-size: 2em;
+        }
+        .results li {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            list-style: none;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease-in-out;
+        }
+        .results li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .results span {
+            font-size: 1.2em;
+            color: #007BFF;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            input[type="text"] {
+                width: 100%;
+                max-width: 300px;
+            }
+            button {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Discover Movies</h1>
+
+    <!-- Search Form -->
+    <form action="/search" method="get">
+        <input type="text" id="search-bar" name="query" placeholder="Search for a movie..." required autocomplete="off" />
+        <button type="submit">Search</button>
+        <div id="suggestions"></div> <!-- Autocomplete suggestions -->
+    </form>
+
+    <!-- Search Results Section -->
+    <div class="results" th:if="${movies}">
+        <h2>Search Results:</h2>
+        <ul>
+            <li th:each="movie : ${movies.results}">
+                <span th:text="${movie.title}">Movie Title</span>
+                <span th:text="' (' + ${movie.releaseDate} + ')'">Release Date</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error" th:if="${errorMessage}">
+        <p th:text="${errorMessage}">An error occurred</p>
+    </div>
+
+    <!-- JavaScript for Autocomplete -->
+    <script>
+        const searchBar = document.getElementById('search-bar');
+        const suggestions = document.getElementById('suggestions');
+
+        searchBar.addEventListener('input', function() {
+            const query = this.value;
+            if (query.length > 2) {
+                fetch(`/autocomplete?query=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestions.innerHTML = ''; // Clear suggestions
+                        data.results.forEach(movie => {
+                            const div = document.createElement('div');
+                            div.classList.add('suggestion-item');
+                            div.textContent = movie.title;
+                            div.addEventListener('click', function() {
+                                searchBar.value = movie.title; // Set movie title to search bar
+                                suggestions.innerHTML = ''; // Clear suggestions
+                            });
+                            suggestions.appendChild(div);
+                        });
+                    });
+            } else {
+                suggestions.innerHTML = ''; // Clear suggestions if query is too short
+            }
+        });
+    </script>
+</body>
+</html>

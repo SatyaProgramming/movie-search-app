@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Movie Search Results</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1>Search Results</h1>
+
+    <!-- Display error message if present -->
+    <div th:if="${errorMessage != null}">
+        <p id="error-message" th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- Display search results if movies are available -->
+    <div th:if="${movies != null}">
+        <ul class="movie-list">
+            <li th:each="movie : ${movies.results}" class="movie-item">
+                <div class="poster-container">
+                    <img th:src="${movie.posterPath != null ? 'https://image.tmdb.org/t/p/w500/' + movie.posterPath : 'https://via.placeholder.com/200x300'}" 
+                         alt="Movie Poster" />
+                </div>
+                <h3 th:text="${movie.title}"></h3>
+                <p th:if="${movie.overview != null}" th:text="${movie.overview}"></p>
+                <p>Release Date: <span th:text="${movie.releaseDate}"></span></p>
+                <p>Avg Rating: <span th:text="${movie.voteAverage}"></span></p>
+                <p>Original Title: <span th:text="${movie.originalTitle}"></span></p>
+                <p>Popularity: <span th:text="${movie.popularity}"></span></p>
+                <p>Vote Count: <span th:text="${movie.voteCount}"></span></p>
+                <span class="read-more" 
+                      th:if="${movie.overview != null and movie.overview.length() > 100}"
+                      th:text="'Read more...'" 
+                      th:data-id="${movie.id}" 
+                      th:data-title="${movie.title}" 
+                      th:data-overview="${movie.overview}" 
+                      onclick="showOverviewModal(this)">
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- No results message -->
+    <div th:if="${movies == null or #lists.isEmpty(movies.results)}">
+        <p class="no-results">No results found. <a href="/" class="back-home">Back to Home</a></p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <a th:href="@{/search(query=${query}, page=${page - 1})}" 
+           th:classappend="${page <= 1} ? 'disabled' : ''"
+           th:text="'Previous'"
+           th:if="${page > 1}"></a>
+        <a th:href="@{/search(query=${query}, page=${page})}" 
+           class="active"
+           th:text="${page}"></a>
+        <a th:href="@{/search(query=${query}, page=${page + 1})}" 
+           th:classappend="${page >= totalPages} ? 'disabled' : ''"
+           th:text="'Next'"
+           th:if="${page < totalPages}"></a>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-overview" style="display: none;">
+        <div id="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-overview"></p>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+    
+    <!-- Back to Home Link -->
+    <a href="/" class="back-home">Back to Home</a>
+
+    <!-- JavaScript -->
+    <script src="/scripts.js"></script>
+</body>
+</html>

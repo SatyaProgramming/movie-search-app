@@ -1,0 +1,8 @@
+com\moviedb\moviesearch\AppConfig.class
+com\moviedb\moviesearch\MovieSearchController.class
+com\moviedb\moviesearch\MovieService.class
+com\moviedb\moviesearch\HomeController.class
+com\moviedb\moviesearch\ErrorResponse.class
+com\moviedb\moviesearch\Movie.class
+com\moviedb\moviesearch\MovieResponse.class
+com\moviedb\moviesearch\MovieSearchAppApplication.class
